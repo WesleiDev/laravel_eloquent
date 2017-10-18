@@ -5,16 +5,19 @@ namespace App;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Post extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'type', 'title', 'body'
     ];
 
-    protected $dates = ['created_at', 'updated_at', 'published_at'];//Especificando estes campos para utilizar o Carbor (Data, pacote de data para trabalhar no PHP)
+    protected $dates = ['created_at', 'updated_at', 'published_at, deleted_at'];//Especificando estes campos para utilizar o Carbor (Data, pacote de data para trabalhar no PHP)
 
-    //Configuro um evento padrão onde setamos o atributo para ficar lower case. O nome da função deve seguir este padrão setNomedaPropriedadeAttribute ou get para retornar na tela para o usuário
+    //Configuro um evento padrÃ£o onde setamos o atributo para ficar lower case. O nome da funÃ§Ã£o deve seguir este padrÃ£o setNomedaPropriedadeAttribute ou get para retornar na tela para o usuÃ¡rio
     public function setTitleAttribute($value){
         $this->attributes['title'] = strtolower($value);
     }
@@ -23,7 +26,7 @@ class Post extends Model
         return ucfirst($value);
     }
 
-    //Scopos - o nome da função deve começar com scope
+    //Scopos - o nome da funÃ§Ã£o deve comeÃ§ar com scope
     public function scopeOfType($query, $type){
         return $query->where('type', $type);
     }
@@ -32,7 +35,7 @@ class Post extends Model
         return $query->where('type', 'text');
     }
 
-    //Método de inicialização
+    //MÃ©todo de inicializaÃ§Ã£o
     protected static function boot(){
         parent::boot();
         //Adicionando um escopo global
@@ -41,7 +44,15 @@ class Post extends Model
         });
     }
 
-    //Configurando um cast automático diretamente no model
+    public function user(){
+        return $this->belongsTo(User::class);
+    }
+
+    public function tags(){
+    return $this->belongsToMany(Tag::class);
+}
+
+    //Configurando um cast automÃ¡tico diretamente no model
 //    protected $casts = [
 //        'is_true'=> 'boolean'
 //    ];
